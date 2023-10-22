@@ -5,9 +5,13 @@
 #include <string>
 
 class City {
+ public:
+  typedef unsigned long long unsLong;
+
+ private:
   std::string name;
   std::string country;
-  int population;
+  unsLong population;
 
  public:
   City();
@@ -17,11 +21,11 @@ class City {
 
   void setName(const std::string&);
   void setCountry(const std::string&);
-  void setPopulation(const int&);
+  void setPopulation(const unsLong&);
 
   std::string getName() const;
   std::string getCountry() const;
-  int getPopulation() const;
+  unsLong getPopulation() const;
 
   std::string toString() const;
 

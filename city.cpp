@@ -17,13 +17,13 @@ void City::setName(const std::string& n) { name = n; }
 
 void City::setCountry(const std::string& c) { country = c; }
 
-void City::setPopulation(const int& p) { population = p; }
+void City::setPopulation(const unsLong& p) { population = p; }
 
 std::string City::getName() const { return name; }
 
 std::string City::getCountry() const { return country; }
 
-int City::getPopulation() const { return population; }
+typename City::unsLong City::getPopulation() const { return population; }
 
 std::string City::toString() const {
   return name + " | " + country + " | " + std::to_string(population);
