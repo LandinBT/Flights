@@ -1,8 +1,12 @@
 #ifndef GRAPH_HPP_INCLUDED
 #define GRAPH_HPP_INCLUDED
 
+#include <exception>
+#include <filesystem>
 #include <fstream>
+#include <iomanip>  //setw
 #include <iostream>
+#include <sstream>  //stringstream
 #include <string>
 
 template <class T>
@@ -83,7 +87,6 @@ class Graph {
 
   void addVertex(const T&);
   void deleteVertex(const T&);
-  void findVertex(const T&);
 
   Vertex* retrieveVertex(const T&);
 
@@ -226,7 +229,7 @@ void Graph<T>::deleteVertex(const T& lab) {
   int deleteIndex(-1);
 
   for (int i(0); i < vertexCount; i++) {
-    if (nodes[i].label == lab) {
+    if (nodes[i].label.getName() == lab.getName()) {
       deleteIndex = i;
       break;
     }
@@ -279,9 +282,6 @@ void Graph<T>::deleteVertex(const T& lab) {
 }
 
 template <class T>
-void Graph<T>::findVertex(const T& lab) {}
-
-template <class T>
 typename Graph<T>::Vertex* Graph<T>::retrieveVertex(const T& lab) {
   for (int i(0); i < vertexCount; i++)
     if (nodes[i].label == lab) return &nodes[i];
@@ -295,8 +295,8 @@ void Graph<T>::addEdge(const T& origLab, const T& destLab, const int& w) {
   int destIdx(-1);  // destination index
 
   for (int i(0); i < vertexCount; i++) {
-    if (nodes[i].label == origLab) origIdx = i;
-    if (nodes[i].label == destLab) destIdx = i;
+    if (nodes[i].label.getName() == origLab.getName()) origIdx = i;
+    if (nodes[i].label.getName() == destLab.getName()) destIdx = i;
   }
 
   if (origIdx == -1 or destIdx == -1)
@@ -309,6 +309,7 @@ void Graph<T>::addEdge(const T& origLab, const T& destLab, const int& w) {
 
   // add edge to matrix
   adjMatrix[origIdx][destIdx] = w;
+  adjMatrix[destIdx][origIdx] = w;
 }
 
 template <class T>
@@ -328,6 +329,7 @@ void Graph<T>::deleteEdge(const T& origLab, const T& destLab) {
 
   // delete edge of the matrix
   adjMatrix[origIndex][destIndex] = 0;
+  adjMatrix[destIndex][origIndex] = 0;
 }
 
 template <class T>
@@ -353,16 +355,16 @@ std::string Graph<T>::toList() const {
   std::string str;
 
   for (int i(0); i < vertexCount; i++) {
-    str += nodes[i].label.getName() + "-> ";
+    str += nodes[i].label.getName() + " ->";
     for (int j(0); j < vertexCount; j++) {
       if (adjMatrix[i][j] != 0) {
-        str += nodes[j].label.getName() + " (" +
+        str += " (" + nodes[j].label.getName() + ", " +
                std::to_string(adjMatrix[i][j]) + "), ";
       }
     }
 
-    str += str.substr(0, str.length() - 2);  // delete last comma and space
-    str += '\n';
+    str = str.substr(0, str.length() - 2);  // delete last comma and space
+    str += "\n\n";
   }
 
   return str;
@@ -370,28 +372,47 @@ std::string Graph<T>::toList() const {
 
 template <class T>
 std::string Graph<T>::toMatrix() const {
-  std::string str;
+  std::stringstream strStream;
+  short maxLength(12);
+
+  // headline
+  for (int i(0); i < vertexCount; i++) {
+    // tools for label centering
+    std::string str = nodes[i].label.getName();
+    int padding = (maxLength - str.length()) / 2;
+
+    strStream << std::setw(padding + str.length()) << str
+              << std::setw(maxLength - padding - str.length() + maxLength)
+              << " ";
+  }
+  strStream << '\n';
 
   for (int i(0); i < vertexCount; i++) {
-    for (int j(0); j < vertexCount; j++) {
-      str += std::to_string(adjMatrix[i][j]) + " ";
-    }
+    // tools for label centering
+    std::string str = nodes[i].label.getName();
+    int padding = (maxLength - str.length()) / 2;
 
-    str += '\n';
+    strStream << std::setw(padding + str.length()) << str
+              << std::setw(maxLength - padding - str.length() + maxLength)
+              << " ";
+    for (int j(0); j < vertexCount; j++) {
+      // weights
+      strStream << std::setw(maxLength) << std::to_string(adjMatrix[i][j]);
+    }
+    strStream << '\n';
   }
 
-  return str;
+  return strStream.str();  // convert from stringstream to string
 }
 
 template <class T>
 void Graph<T>::importToDisk(const std::string& fileName) {
-  std::fstream archive(fileName, std::ios_base::in);
-
-  if (!archive.is_open())
-    throw std::ios_base::failure("No se pudo abrir el archivo para lectura");
+  
 }
 
 template <class T>
-void Graph<T>::exportFromDisk(const std::string& fileName) {}
+void Graph<T>::exportFromDisk(const std::string& fileName) {
+  
+}
 
 #endif  // GRAPH_HPP_INCLUDED
