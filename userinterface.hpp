@@ -1,42 +1,46 @@
 #ifndef USERINTERFACE_HPP_INCLUDED
 #define USERINTERFACE_HPP_INCLUDED
 
-///ClearScreen
+/// ClearScreen
 #ifdef _WIN32
-#define CLEAR "cls" // Windows
+#define CLEAR "cls"  // Windows
 #else
-#define CLEAR "clear"   // Unix/Linnux
+#define CLEAR "clear"  // Unix/Linnux
 #endif
 
-///Libraries
+/// Libraries
+#include <exception>
 #include <iostream>
 #include <string>
 
-#include "graph.hpp"
 #include "city.hpp"
+#include "graph.hpp"
 
 using std::cout, std::cin, std::endl;
 
 class UserInterface {
-    Graph<City> cities;
+  Graph<City>* citiesPtr;
 
-    void addCity();
-    void addFlight();
+  void addCity();
+  void addFlight();
 
-    void deleteCity();
-    void deleteFlight();
+  void deleteCity();
+  void deleteFlight();
 
-    void showFlightsList();
-    void showFlightsMatrix();
+  void showFlightsList();
+  void showFlightsMatrix();
 
-    void save();
-    void load();
+  void deleteAll();
 
-    void enterToContinue();
-    //void loading();
+  void save();
+  void load();
 
-public:
-    UserInterface();
+  void enterToContinue();
+  // void loading();
+
+ public:
+  UserInterface();
+  ~UserInterface();
 };
 
-#endif // USERINTERFACE_HPP_INCLUDED
+#endif  // USERINTERFACE_HPP_INCLUDED
