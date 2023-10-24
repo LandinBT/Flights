@@ -177,10 +177,10 @@ void UserInterface::save() {
   // loading();
 
   try {
-    citiesPtr->importToDisk(str);
-    cout << "Datos guardados correctamente" << endl;
+    citiesPtr->exportFromDisk(str);
+    cout << endl << "Datos guardados correctamente" << endl;
   } catch (const std::ios_base::failure& ex) {
-    cout << ex.what() << endl;
+    cout << endl << ex.what() << endl;
   }
 
   enterToContinue();
@@ -194,8 +194,13 @@ void UserInterface::load() {
 
   // loading();
 
-  citiesPtr->exportFromDisk(str);
-  cout << "Datos cargados correctamente" << endl;
+  try {
+    citiesPtr->importToDisk(str);
+    cout << endl << "Datos cargados correctamente" << endl;
+  } catch (const std::ios_base::failure& ex) {
+    cout << endl << ex.what() << endl;
+  }
+
   enterToContinue();
 }
 
