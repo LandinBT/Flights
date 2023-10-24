@@ -235,7 +235,7 @@ void Graph<T>::deleteVertex(const T& lab) {
     }
   }
 
-  if (deleteIndex == -1) throw Exception("El v�rtice no existe");
+  if (deleteIndex == -1) throw Exception("El vertice no existe");
 
   Vertex* newNodes = new Vertex[vertexCount - 1];
   if (newNodes == nullptr)
@@ -318,7 +318,7 @@ void Graph<T>::deleteEdge(const T& origLab, const T& destLab) {
   Vertex* destVertex = retrieveVertex(destLab);
 
   if (origVertex == nullptr or destVertex == nullptr)
-    throw Exception("Uno o ambos v�rtices no existen");
+    throw Exception("Uno o ambos vertices no existen");
 
   int origIndex(-1);
   int destIndex(-1);
@@ -381,9 +381,10 @@ std::string Graph<T>::toMatrix() const {
     std::string str = nodes[i].label.getName();
     int padding = (maxLength - str.length()) / 2;
 
-    strStream << std::setw(padding + str.length()) << str
-              << std::setw(maxLength - padding - str.length() + maxLength)
-              << " ";
+    str.insert(str.begin(), padding, ' ');  // insert spaces at the beginning
+    strStream << str
+              << std::string(maxLength - padding - str.length(),
+                             ' ');  // append spaces at the end
   }
   strStream << '\n';
 
@@ -392,9 +393,10 @@ std::string Graph<T>::toMatrix() const {
     std::string str = nodes[i].label.getName();
     int padding = (maxLength - str.length()) / 2;
 
-    strStream << std::setw(padding + str.length()) << str
-              << std::setw(maxLength - padding - str.length() + maxLength)
-              << " ";
+    str.insert(str.begin(), padding, ' ');  // insert spaces at the beginning
+    strStream << str
+              << std::string(maxLength - padding - str.length(),
+                             ' ');  // append spaces at the end
     for (int j(0); j < vertexCount; j++) {
       // weights
       strStream << std::setw(maxLength) << std::to_string(adjMatrix[i][j]);
@@ -407,12 +409,64 @@ std::string Graph<T>::toMatrix() const {
 
 template <class T>
 void Graph<T>::importToDisk(const std::string& fileName) {
-  
+  std::fstream archive(fileName, std::ios_base::in);
+
+  if (!archive.is_open())
+    throw std::ios_base::failure("No se pudo abrir el archivo para lectura");
+
+  // delete current graph
+  deleteAll();
+
+  // Read vertex count
+  int vCount;
+  char delimiter = '*';
+  archive >> vCount >> delimiter;
+
+  // Read and add vertex
+  for (int i(0); i < vCount; i++) {
+    T aux;
+    archive >> aux;
+    addVertex(aux);
+  }
+
+  // Read and add edge
+  int origIdx, destIdx, w;  // weight
+  char delimiterEdge = '|';
+  while (archive >> origIdx >> delimiterEdge >> destIdx >> delimiterEdge >> w >>
+         delimiter) {
+    if (origIdx >= 0 and origIdx < vCount and destIdx >= 0 and
+        destIdx < vCount) {
+      T origLabel = nodes[origIdx].label;
+      T destLabel = nodes[destIdx].label;
+      addEdge(origLabel, destLabel, w);
+    }
+  }
+
+  archive.close();
 }
 
 template <class T>
 void Graph<T>::exportFromDisk(const std::string& fileName) {
-  
+  std::fstream archive(fileName, std::ios_base::out);
+
+  if (!archive.is_open())
+    throw std::ios_base::failure("No se pudo abrir el archivo para escritura");
+
+  // save vertex count
+  archive << vertexCount << "*";
+
+  // save vertex
+  for (int i(0); i < vertexCount; i++) archive << nodes[i].label;
+
+  // save edge
+  for (int i(0); i < vertexCount; i++) {
+    for (int j(0); j < vertexCount; j++) {
+      if (adjMatrix[i][j] != 0)
+        archive << i << "|" << j << "|" << adjMatrix[i][j] << "*";
+    }
+  }
+
+  archive.close();
 }
 
 #endif  // GRAPH_HPP_INCLUDED
